@@ -33,11 +33,11 @@ def check_frontmatter(path: Path, errors: list[str]) -> None:
     if not text.startswith("---\n"):
         errors.append(f"{path.relative_to(ROOT)}: missing YAML frontmatter")
         return
-    try:
-        block = text.split("---\n", 2)[1]
-    except IndexError:
+    parts = text.split("---\n", 2)
+    if len(parts) < 3:
         errors.append(f"{path.relative_to(ROOT)}: unclosed YAML frontmatter")
         return
+    block = parts[1]
     keys = {line.split(":", 1)[0].strip() for line in block.splitlines() if ":" in line}
     missing = REQUIRED_FIELDS - keys
     if missing:
