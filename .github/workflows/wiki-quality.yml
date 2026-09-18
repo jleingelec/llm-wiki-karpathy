@@ -13,8 +13,22 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+      - name: Validate devcontainer JSON
+        run: python -m json.tool .devcontainer/devcontainer.json > /dev/null
+      - name: Validate Python syntax
+        run: python -m py_compile scripts/check_wiki.py tests/test_check_wiki.py
+      - name: Run checker tests
+        run: python -m unittest discover -s tests -v
       - name: Check wiki structure and links
         run: python scripts/check_wiki.py
+      - name: Check pull request whitespace
+        if: github.event_name == 'pull_request'
+        run: git diff --check "${{ github.event.pull_request.base.sha }}...${{ github.event.pull_request.head.sha }}"
+      - name: Check pushed commit whitespace
+        if: github.event_name == 'push'
+        run: git diff --check "${{ github.event.before }}...${{ github.sha }}"
