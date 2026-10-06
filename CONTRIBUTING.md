@@ -13,6 +13,8 @@ for review. For the current priorities and tool boundaries, see
 5. Run the checks below and open a pull request linked to the issue.
 
 ```bash
+python -m pip install -r requirements-dev.txt
+python -m unittest discover -s tests -v
 python scripts/check_wiki.py
 git diff --check
 ```

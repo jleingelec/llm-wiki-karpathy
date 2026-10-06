@@ -18,6 +18,8 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+      - name: Install checker dependencies
+        run: python -m pip install -r requirements-dev.txt
       - name: Validate devcontainer JSON
         run: python -m json.tool .devcontainer/devcontainer.json > /dev/null
       - name: Validate Python syntax

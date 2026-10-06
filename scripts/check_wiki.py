@@ -5,12 +5,16 @@ from __future__ import annotations
 
 import re
 import sys
+from datetime import date
 from pathlib import Path
+
+import yaml
 
 
 ROOT = Path(__file__).resolve().parents[1]
 WIKI = ROOT / "wiki"
 ENTITY_DIRS = {"sources", "features", "products", "personas", "concepts", "style", "analyses"}
+ENTITY_TYPES = {"source", "feature", "product", "persona", "concept", "style", "analysis"}
 REQUIRED_FIELDS = {"title", "type", "created", "updated", "sources", "tags"}
 WIKILINK = re.compile(r"\[\[([^\]|#]+)(?:#[^\]|]+)?(?:\|[^\]]+)?\]\]")
 MARKDOWN_LINK = re.compile(r"(?<!!)\[[^\]]*\]\(([^)]+)\)")
@@ -19,7 +23,11 @@ INLINE_CODE = re.compile(r"`[^`]*`")
 
 
 def markdown_files() -> list[Path]:
-    return sorted(path for path in ROOT.rglob("*.md") if ".git" not in path.parts)
+    return sorted(
+        path for path in ROOT.rglob("*.md")
+        if ".git" not in path.relative_to(ROOT).parts
+        and path.relative_to(ROOT).parts[0] != "raw"
+    )
 
 
 def check_frontmatter(path: Path, errors: list[str]) -> None:
@@ -33,15 +41,43 @@ def check_frontmatter(path: Path, errors: list[str]) -> None:
     if not text.startswith("---\n"):
         errors.append(f"{path.relative_to(ROOT)}: missing YAML frontmatter")
         return
-    parts = text.split("---\n", 2)
-    if len(parts) < 3:
+    closing = re.search(r"^---[ \t]*$", text[4:], re.MULTILINE)
+    if closing is None:
         errors.append(f"{path.relative_to(ROOT)}: unclosed YAML frontmatter")
         return
-    block = parts[1]
-    keys = {line.split(":", 1)[0].strip() for line in block.splitlines() if ":" in line}
-    missing = REQUIRED_FIELDS - keys
+    block = text[4:4 + closing.start()]
+    try:
+        fields = yaml.safe_load(block)
+    except (yaml.YAMLError, ValueError):
+        errors.append(f"{path.relative_to(ROOT)}: invalid YAML frontmatter")
+        return
+    if not isinstance(fields, dict):
+        errors.append(f"{path.relative_to(ROOT)}: frontmatter must be a mapping")
+        return
+    missing = REQUIRED_FIELDS - fields.keys()
     if missing:
         errors.append(f"{path.relative_to(ROOT)}: missing fields {', '.join(sorted(missing))}")
+    for field in sorted(REQUIRED_FIELDS & fields.keys()):
+        value = fields[field]
+        if field == "title":
+            valid = isinstance(value, str) and bool(value.strip())
+        elif field == "type":
+            valid = isinstance(value, str) and value in ENTITY_TYPES
+        elif field in {"created", "updated"}:
+            # PyYAML resolves unquoted ISO dates to date objects.
+            valid = type(value) is date
+            if isinstance(value, str) and re.fullmatch(r"\d{4}-\d{2}-\d{2}", value):
+                try:
+                    date.fromisoformat(value)
+                    valid = True
+                except ValueError:
+                    pass
+        else:
+            valid = isinstance(value, list) and all(
+                isinstance(item, str) and bool(item.strip()) for item in value
+            )
+        if not valid:
+            errors.append(f"{path.relative_to(ROOT)}: invalid value for {field}")
 
 
 def check_links(path: Path, wiki_stems: set[str], errors: list[str]) -> None:

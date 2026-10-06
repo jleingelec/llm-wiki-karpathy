@@ -23,3 +23,13 @@ Core pages created:
 - `wiki/glossary.md`
 
 Next step: Drop your first source into `raw/` and say **"ingest [filename]"**.
+
+## [2026-10-06] lint | PR #1 quality checker review fixes
+
+Excluded immutable `raw/` Markdown inputs from link validation. Required a
+standalone closing frontmatter delimiter in column zero and validated YAML values
+against the existing entity schema. Added regression coverage and pinned PyYAML
+for local checks and the quality workflow. No entity pages or raw inputs changed.
+
+Validation on Python 3.12.14: all 10 unittest tests passed; devcontainer JSON,
+`py_compile`, the wiki checker (12 Markdown files), and `git diff --check` passed.
