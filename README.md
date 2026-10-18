@@ -98,6 +98,12 @@ llm-wiki-karpathy/
 └── .obsidian/         # Pre-configured Obsidian vault settings
 ```
 
+For the current implementation status, prioritized backlog, and a tailored operating
+model for GitHub Projects, Codex, Codespaces, Actions, and Obsidian, see
+[`docs/PROJECT_STATUS.md`](docs/PROJECT_STATUS.md). Contributors should start with
+[`CONTRIBUTING.md`](CONTRIBUTING.md); Codex follows the repository-native
+[`AGENTS.md`](AGENTS.md) instructions.
+
 ### How the layers work
 
 | Layer | Folder | Who owns it | Purpose |

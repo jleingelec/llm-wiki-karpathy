@@ -1,0 +1,24 @@
+name: Improve the wiki system
+description: Report a quality problem or propose a focused improvement.
+title: "[Improvement]: "
+labels: ["type:feature"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: Describe the observed problem, not only a preferred solution.
+    validations:
+      required: true
+  - type: textarea
+    id: outcome
+    attributes:
+      label: Desired outcome
+      description: State an observable acceptance criterion.
+    validations:
+      required: true
+  - type: textarea
+    id: context
+    attributes:
+      label: Context
+      description: Link relevant wiki pages, sources, or checks.

@@ -1,0 +1,39 @@
+name: Ingest a source
+description: Propose one source to incorporate into the wiki.
+title: "[Ingest]: "
+labels: ["type:ingest", "needs-review"]
+body:
+  - type: markdown
+    attributes:
+      value: Do not attach secrets, personal data, or material you cannot redistribute.
+  - type: input
+    id: source
+    attributes:
+      label: Source
+      description: Filename or authorized public URL.
+    validations:
+      required: true
+  - type: textarea
+    id: purpose
+    attributes:
+      label: Purpose and questions
+      description: Explain why this belongs in the wiki and which questions it should answer.
+    validations:
+      required: true
+  - type: dropdown
+    id: sensitivity
+    attributes:
+      label: Data sensitivity
+      options:
+        - Public
+        - Internal and approved for this repository
+        - Needs privacy review
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance criteria
+      placeholder: Pages expected, required citations, and reviewer.
+    validations:
+      required: true

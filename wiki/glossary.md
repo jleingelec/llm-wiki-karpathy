@@ -20,7 +20,7 @@ Each entry follows this format:
 **Term** *(canonical form)*
 : Definition. Usage notes. Related terms.
 - Preferred: `term` / Avoid: `deprecated term`
-- See also: [[related-page]]
+- See also: `[[related-page]]`
 
 ---
 
